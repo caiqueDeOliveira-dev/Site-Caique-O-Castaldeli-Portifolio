@@ -3,8 +3,12 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
+  "workspaces": ["server"],
   "scripts": {
     "build": "vite build",
+    "db:generate": "cd server && npx prisma generate",
+    "build:server": "cd server && npm run build",
+    "vercel-build": "npm run db:generate && npm run build:server && npm run build",
     "dev": "vite"
   },
   "dependencies": {

@@ -61,36 +61,42 @@ app.get("/api/health", (_req, res) => {
 // Error handler
 app.use(errorHandler);
 
-// Start
-async function start() {
-  try {
-    await connectDatabase();
-    await seedAdmin();
-    await seedCategories();
-    await seedTechnologies();
-    await seedStats();
-    startAutoSync();
+// Export app for Vercel
+export default app;
 
-    app.listen(env.PORT, () => {
-      logger.info(`Servidor rodando em http://localhost:${env.PORT} (${env.NODE_ENV})`);
-      console.log(`🚀 API rodando em http://localhost:${env.PORT}/api`);
-    });
-  } catch (error) {
-    logger.error("Erro ao iniciar servidor:", error);
-    process.exit(1);
+// Start local server when run directly (not imported by Vercel)
+const isVercel = process.env.VERCEL === "1";
+if (!isVercel) {
+  async function start() {
+    try {
+      await connectDatabase();
+      await seedAdmin();
+      await seedCategories();
+      await seedTechnologies();
+      await seedStats();
+      startAutoSync();
+
+      app.listen(env.PORT, () => {
+        logger.info(`Servidor rodando em http://localhost:${env.PORT} (${env.NODE_ENV})`);
+        console.log(`🚀 API rodando em http://localhost:${env.PORT}/api`);
+      });
+    } catch (error) {
+      logger.error("Erro ao iniciar servidor:", error);
+      process.exit(1);
+    }
   }
+
+  process.on("SIGINT", async () => {
+    stopAutoSync();
+    await disconnectDatabase();
+    process.exit(0);
+  });
+
+  process.on("SIGTERM", async () => {
+    stopAutoSync();
+    await disconnectDatabase();
+    process.exit(0);
+  });
+
+  start();
 }
-
-process.on("SIGINT", async () => {
-  stopAutoSync();
-  await disconnectDatabase();
-  process.exit(0);
-});
-
-process.on("SIGTERM", async () => {
-  stopAutoSync();
-  await disconnectDatabase();
-  process.exit(0);
-});
-
-start();
