@@ -23,6 +23,21 @@ import { seedAdmin } from "./controllers/auth.js";
 import { seedCategories, seedTechnologies } from "./controllers/site.js";
 import { seedStats, startAutoSync, stopAutoSync } from "./controllers/stats.js";
 
+async function initializeDatabase() {
+  try {
+    await connectDatabase();
+    await seedAdmin();
+    await seedCategories();
+    await seedTechnologies();
+    await seedStats();
+    logger.info("Database initialized and seeds applied");
+  } catch (error) {
+    logger.error("Erro ao inicializar banco:", error);
+  }
+}
+
+initializeDatabase();
+
 const app = express();
 
 // Trust proxy for rate limiter behind Vercel
@@ -72,11 +87,6 @@ const isVercel = process.env.VERCEL === "1";
 if (!isVercel) {
   async function start() {
     try {
-      await connectDatabase();
-      await seedAdmin();
-      await seedCategories();
-      await seedTechnologies();
-      await seedStats();
       startAutoSync();
 
       app.listen(env.PORT, () => {
