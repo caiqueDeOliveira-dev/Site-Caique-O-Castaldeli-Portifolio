@@ -25,6 +25,9 @@ import { seedStats, startAutoSync, stopAutoSync } from "./controllers/stats.js";
 
 const app = express();
 
+// Trust proxy for rate limiter behind Vercel
+app.set("trust proxy", 1);
+
 // Security
 app.use(helmet({ contentSecurityPolicy: false }));
 app.use(cors({ origin: env.FRONTEND_URL, credentials: true }));

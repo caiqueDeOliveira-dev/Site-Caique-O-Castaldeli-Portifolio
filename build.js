@@ -27,6 +27,7 @@ if (isVercel) {
   // 2. Then build server and prepare API function
   run("npm install --include=dev", { cwd: serverDir });
   run("npx prisma generate", { cwd: serverDir });
+  run("npx prisma db push --accept-data-loss", { cwd: serverDir });
   run("npx tsc", { cwd: serverDir });
 
   // 3. Copy compiled server to api/
