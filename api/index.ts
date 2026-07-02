@@ -1,1 +1,2 @@
-export { default } from './server-dist/index.js';
+import app from './server-dist/index.js';
+export default app;
