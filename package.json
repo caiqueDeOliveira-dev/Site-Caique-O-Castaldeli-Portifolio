@@ -3,12 +3,9 @@
   "private": true,
   "version": "0.0.1",
   "type": "module",
-  "workspaces": ["server"],
   "scripts": {
     "build": "vite build",
-    "db:generate": "cd server && npx prisma generate",
-    "build:server": "cd server && npm run build",
-    "vercel-build": "npx prisma generate --schema=server/prisma/schema.prisma && cd server && npm run build && cd .. && npm run build",
+    "vercel-build": "cd server && npm install && npx prisma generate && npm run build && cd .. && cp -r server/dist api/server-dist && cp -r server/node_modules/* node_modules/ && npm install && npm run build",
     "dev": "vite"
   },
   "dependencies": {
