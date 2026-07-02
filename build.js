@@ -21,8 +21,7 @@ if (isVercel) {
   const serverDist = join(serverDir, "dist");
   const apiServerDist = join(__dirname, "api", "server-dist");
 
-  // 1. First build frontend (no interference from server packages)
-  run("npm install", { cwd: __dirname });
+  // 1. First build frontend (deps already installed by Vercel)
   run("npx vite build", { cwd: __dirname });
 
   // 2. Then build server and prepare API function
