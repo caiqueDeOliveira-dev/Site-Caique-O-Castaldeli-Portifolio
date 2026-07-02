@@ -6,19 +6,19 @@ import { fileURLToPath } from "url";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const isVercel = process.env.VERCEL === "1";
 
+function run(cmd, opts = {}) {
+  console.log(`> ${cmd}`);
+  execSync(cmd, { stdio: "inherit", ...opts });
+}
+
 if (isVercel) {
   const serverDir = join(__dirname, "server");
   const serverDist = join(serverDir, "dist");
   const apiServerDist = join(__dirname, "api", "server-dist");
 
-  console.log("[BUILD] Instalando dependencias do servidor...");
-  execSync("npm install", { cwd: serverDir, stdio: "inherit" });
-
-  console.log("[BUILD] Gerando Prisma client...");
-  execSync("npx prisma generate", { cwd: serverDir, stdio: "inherit" });
-
-  console.log("[BUILD] Compilando servidor...");
-  execSync("npm run build", { cwd: serverDir, stdio: "inherit" });
+  run("npm install --include=dev", { cwd: serverDir });
+  run("npx prisma generate", { cwd: serverDir });
+  run("npx tsc", { cwd: serverDir });
 
   console.log("[BUILD] Copiando build do servidor para api/...");
   if (existsSync(apiServerDist)) rmSync(apiServerDist, { recursive: true });
@@ -47,13 +47,10 @@ if (isVercel) {
     cpSync(prismaClientSrc, prismaClientDst, { recursive: true });
   }
 
-  console.log("[BUILD] Instalando dependencias do frontend...");
-  execSync("npm install", { cwd: __dirname, stdio: "inherit" });
-
-  console.log("[BUILD] Compilando frontend...");
-  execSync("npx vite build", { cwd: __dirname, stdio: "inherit" });
+  run("npm install", { cwd: __dirname });
+  run("npx vite build", { cwd: __dirname });
 
   console.log("[BUILD] Build completo!");
 } else {
-  execSync("npx vite build", { cwd: __dirname, stdio: "inherit" });
+  run("npx vite build", { cwd: __dirname });
 }
