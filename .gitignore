@@ -1,0 +1,11 @@
+node_modules/
+dist/
+*.log
+.env
+.env.local
+server/.env
+server/dist/
+server/node_modules/
+server/logs/
+server/server_pid.txt
+server/server.log

@@ -1,0 +1,181 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum ProjectStatus {
+  CONCLUIDO
+  EM_DESENVOLVIMENTO
+  EM_PAUSA
+  PLANEJADO
+}
+
+model User {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String   @unique
+  senha     String
+  avatar    String?
+  cargo     String   @default("Desenvolvedor Full Stack")
+  ativo     Boolean  @default(true)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+model Technology {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  icone     String?
+  descricao String?
+  categoria String   @default("web")
+  destaque  Boolean  @default(false)
+  ordem     Int      @default(0)
+  createdAt DateTime @default(now())
+
+  projetos ProjectTechnology[]
+
+  @@map("technologies")
+}
+
+model Category {
+  id        String   @id @default(cuid())
+  nome      String   @unique
+  slug      String   @unique
+  descricao String?
+  createdAt DateTime @default(now())
+
+  projetos Project[]
+
+  @@map("categories")
+}
+
+model Project {
+  id          String        @id @default(cuid())
+  titulo      String
+  descricao   String
+  imagem      String?
+  github      String?
+  demo        String?
+  status      ProjectStatus @default(PLANEJADO)
+  destaque    Boolean       @default(false)
+  ordem       Int           @default(0)
+  categoryId  String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+
+  category    Category?          @relation(fields: [categoryId], references: [id])
+  tecnologias ProjectTechnology[]
+
+  @@map("projects")
+}
+
+model ProjectTechnology {
+  projectId    String
+  technologyId String
+
+  project    Project    @relation(fields: [projectId], references: [id], onDelete: Cascade)
+  technology Technology @relation(fields: [technologyId], references: [id], onDelete: Cascade)
+
+  @@id([projectId, technologyId])
+  @@map("project_technologies")
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  nome      String
+  email     String
+  assunto   String?
+  mensagem  String
+  lida      Boolean  @default(false)
+  respondida Boolean @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("messages")
+}
+
+model HistoryPost {
+  id        String   @id @default(cuid())
+  titulo    String
+  texto     String?
+  imagem    String?
+  data      DateTime?
+  publicado Boolean  @default(false)
+  link      String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("history_posts")
+}
+
+model NegoCaosContent {
+  id        String   @id @default(cuid())
+  tipo      String   @default("game")  // game, tutorial, video, mod
+  titulo    String
+  descricao String?
+  imagem    String?
+  url       String?
+  destaque  Boolean  @default(false)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("nego_caos_contents")
+}
+
+model Gallery {
+  id        String   @id @default(cuid())
+  titulo    String?
+  imagem    String
+  descricao String?
+  pagina    String   @default("geral")  // geral, projetos, historias, nego-caos
+  destaque  Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@map("gallery")
+}
+
+model File {
+  id        String   @id @default(cuid())
+  nome      String
+  url       String
+  tipo      String   @default("image")  // image, pdf, document
+  tamanho   Int?
+  createdAt DateTime @default(now())
+
+  @@map("files")
+}
+
+model SiteConfig {
+  id        String   @id @default(cuid())
+  chave     String   @unique
+  valor     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("site_configs")
+}
+
+model Stats {
+  id          String   @id @default(cuid())
+  posts       Int      @default(0)
+  seguidores  Int      @default(0)
+  conteudos   Int      @default(0)
+  alcance     Int      @default(0)
+  projetos    Int      @default(0)
+  tecnologias Int      @default(0)
+  horasEstudo Int      @default(0)
+  commits     Int      @default(0)
+  projetosGamer Int    @default(0)
+  horasJogadas Int     @default(0)
+  horasDev    Int      @default(0)
+  updatedAt   DateTime @updatedAt
+
+  @@map("stats")
+}
