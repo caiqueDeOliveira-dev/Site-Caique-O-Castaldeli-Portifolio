@@ -4,8 +4,7 @@
   "version": "0.0.1",
   "type": "module",
   "scripts": {
-    "build": "vite build",
-    "vercel-build": "cd server && npm install && npx prisma generate && npm run build && cd .. && cp -r server/dist api/server-dist && cp -r server/node_modules/* node_modules/ && npm install && npm run build",
+    "build": "node build.js",
     "dev": "vite"
   },
   "dependencies": {

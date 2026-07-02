@@ -9,3 +9,4 @@ server/node_modules/
 server/logs/
 server/server_pid.txt
 server/server.log
+api/server-dist/
