@@ -25,7 +25,7 @@ if (isVercel) {
   run("npx vite build", { cwd: __dirname });
 
   // 2. Then build server and prepare API function
-  run("npm install --include=dev", { cwd: serverDir });
+  run("npm install --include=dev --force", { cwd: serverDir });
   run("npx prisma generate", { cwd: serverDir });
   try {
     execSync("npx prisma db push --accept-data-loss", { stdio: "inherit", cwd: serverDir });
