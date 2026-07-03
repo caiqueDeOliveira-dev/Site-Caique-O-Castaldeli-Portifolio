@@ -8,11 +8,27 @@ if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
 
 const app = express();
 app.use(express.text({ type: "*/*" }));
-app.use((req, _res, next) => {
+app.use((req, res, next) => {
   if (req.body && typeof req.body === "string") {
-    try { req.body = JSON.parse(req.body); } catch { req.body = {}; }
+    if (req.body.trim()) {
+      try { req.body = JSON.parse(req.body); } catch { /* keep as string */ }
+    } else {
+      req.body = {};
+    }
   }
   next();
+});
+
+// Debug - show raw body
+app.all("/api/debug", (req, res) => {
+  res.json({
+    method: req.method,
+    path: req.path,
+    body: req.body,
+    bodyType: typeof req.body,
+    contentType: req.headers["content-type"],
+    contentLength: req.headers["content-length"],
+  });
 });
 
 app.get("/api/health", (_req, res) => {
