@@ -56,7 +56,7 @@ export default function Curriculo() {
           <div style={{ maxWidth: 1280, margin: "0 auto", padding: "0 24px 24px" }}>
             <FadeIn className="text-center">
               <a
-                href="/curriculo.pdf"
+                href="/Curriculo-Caiquedeoliveira.dev.pdf"
                 download
                 className="inline-flex items-center gap-2 px-8 py-4 rounded-xl font-semibold text-sm transition-all duration-300"
                 style={{ background: "#B3001B", color: "#F5F5F5", fontFamily: "Inter, sans-serif", textDecoration: "none" }}

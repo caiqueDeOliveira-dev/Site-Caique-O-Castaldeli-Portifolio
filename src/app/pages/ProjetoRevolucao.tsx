@@ -35,10 +35,10 @@ const topicos = [
 ];
 
 const timeline = [
-  { year: "2023", title: "A Ideia", desc: "Nasceu a visão de compartilhar conhecimento histórico de forma acessível e envolvente nas redes sociais." },
-  { year: "2024", title: "Primeiros Posts", desc: "Conteúdo começou a ganhar tração com posts educativos sobre períodos históricos marcantes." },
-  { year: "2025", title: "Crescimento", desc: "Expansão para múltiplas plataformas com formato próprio de storytelling histórico." },
-  { year: "2026", title: "Reconhecimento", desc: "Projeto consolidado com centenas de conteúdos publicados e comunidade engajada." },
+  { year: "2026 — Jan", title: "A Ideia", desc: "Nasceu a visão de compartilhar conhecimento histórico de forma acessível e envolvente nas redes sociais." },
+  { year: "2026 — Jun", title: "Primeiros Conteúdos", desc: "Comecei a estruturar o projeto, pesquisar conteúdos históricos e planejar o formato de publicação." },
+  { year: "2026 — Jul", title: "Lançamento", desc: "Projeto no ar com design próprio, identidade visual definida e primeiros conteúdos publicados." },
+  { year: "2026 — Futuro", title: "Crescimento", desc: "Expandir para múltiplas plataformas com storytelling histórico e conteúdo educativo de qualidade." },
 ];
 
 const conteudos = [

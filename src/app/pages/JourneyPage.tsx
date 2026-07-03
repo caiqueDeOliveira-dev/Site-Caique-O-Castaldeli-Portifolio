@@ -1,5 +1,5 @@
 import { motion } from "motion/react";
-import { Shield, BookOpen, FileCode2, Palette, Braces, Code2, Atom, Zap, Server, Bot } from "lucide-react";
+import { Shield, BookOpen, FileCode2, Palette, Braces, Code2, Atom, Zap, Server, Bot, GitBranch } from "lucide-react";
 import { FadeIn } from "../components/FadeIn";
 import { SectionLabel } from "../components/SectionLabel";
 import { Particles } from "../components/Particles";
@@ -9,20 +9,20 @@ import { BackToTop } from "../layout/BackToTop";
 import { ScrollProgress } from "../layout/ScrollProgress";
 
 const iconMap: Record<string, React.ElementType> = {
-  Shield, BookOpen, FileCode2, Palette, Braces, Code2, Atom, Zap, Server, Bot,
+  Shield, BookOpen, FileCode2, Palette, Braces, Code2, Atom, Zap, Server, Bot, GitBranch,
 };
 
 const steps = [
-  { title: "Segurança Patrimonial", desc: "Minha trajetória começou na segurança patrimonial, onde desenvolvi disciplina, responsabilidade e visão estratégica — habilidades que hoje aplico no desenvolvimento de software.", icon: "Shield" },
-  { title: "Primeiros Estudos", desc: "Decidi migrar para tecnologia e comecei a estudar programação por conta própria. Descobri um novo mundo de possibilidades.", icon: "BookOpen" },
-  { title: "HTML", desc: "Dominei a estruturação semântica de páginas web, aprendendo a criar bases sólidas e acessíveis para qualquer projeto.", icon: "FileCode2" },
-  { title: "CSS", desc: "Aprendi estilização avançada, animações, responsividade e frameworks como Tailwind. O design ganhou vida.", icon: "Palette" },
-  { title: "JavaScript", desc: "Mergulhei na linguagem que trouxe vida às minhas aplicações. Lógica, eventos, async, e todo o ecossistema.", icon: "Braces" },
-  { title: "TypeScript", desc: "Adicionei tipagem robusta aos meus projetos, garantindo mais segurança, escalabilidade e código autodocumentado.", icon: "Code2" },
-  { title: "React", desc: "Dominei o ecossistema React, criando interfaces modernas, componentizadas e com experiências fluidas para o usuário.", icon: "Atom" },
-  { title: "Projetos Reais", desc: "Construí aplicações completas do zero ao deploy, aplicando na prática tudo que aprendi e resolvendo problemas reais.", icon: "Zap" },
-  { title: "Desenvolvedor Full Stack", desc: "Integro front-end e back-end com eficiência, criando soluções completas, escaláveis e de alto valor.", icon: "Server" },
-  { title: "Especialização em IA", desc: "Utilizo Inteligência Artificial como aliada estratégica para ampliar produtividade, acelerar aprendizado e inovar.", icon: "Bot" },
+  { title: "Início nos Estudos", desc: "Comecei minha jornada na programação em janeiro de 2026, ingressando na faculdade de Ciências da Computação. Cada conceito aprendido era uma descoberta empolgante.", icon: "BookOpen" },
+  { title: "Python", desc: "Escolhi Python como primeira linguagem. Desenvolvi lógica de programação, estruturas de dados e orientação a objetos com projetos práticos.", icon: "Braces" },
+  { title: "Primeiros Projetos", desc: "Construí um sistema de login, um inventário para clãs e uma to-do list com Tkinter. Cada projeto consolidava meu aprendizado.", icon: "FileCode2" },
+  { title: "HTML & CSS", desc: "Aprendi estruturação semântica de páginas web, estilização avançada com Tailwind CSS e design responsivo.", icon: "Palette" },
+  { title: "TypeScript & React", desc: "Mergulhei no ecossistema React com TypeScript, criando interfaces modernas, componentizadas e com animações fluidas.", icon: "Atom" },
+  { title: "Backend & Banco", desc: "Expandi para Node.js com Express, Prisma ORM e PostgreSQL. Aprendi a criar APIs REST e integrar front com back.", icon: "Server" },
+  { title: "Portfólio Full Stack", desc: "Construí este portfólio completo do zero — design, frontend, backend, banco de dados e deploy na Vercel.", icon: "Zap" },
+  { title: "Git & GitHub", desc: "Dominei o版本amento de código com Git e GitHub, mantendo um histórico organizado de todos os meus projetos.", icon: "Code2" },
+  { title: "Projeto Revolução", desc: "Iniciei o projeto 'Histórias Apagadas' para compartilhar conhecimento histórico de forma acessível e engajadora.", icon: "Shield" },
+  { title: "Pronto para o Mercado", desc: "Stack consolidada, portfólio no ar e foco em conquistar minha primeira oportunidade como Desenvolvedor.", icon: "Bot" },
 ];
 
 export default function JourneyPage() {
@@ -62,7 +62,7 @@ export default function JourneyPage() {
                 <span style={{ color: "#B3001B" }}>Jornada</span>
               </h1>
               <p className="text-xl mx-auto max-w-2xl leading-relaxed" style={{ fontFamily: "Inter, sans-serif", color: "#8A8A8A" }}>
-                Da segurança patrimonial ao desenvolvimento full stack com IA.
+                De iniciante absoluto a desenvolvedor full stack — em apenas 7 meses.
               </p>
               <p className="mt-4 mx-auto max-w-xl" style={{ fontFamily: "Inter, sans-serif", color: "rgba(138,138,138,0.7)", fontSize: "0.95rem" }}>
                 Cada passo me trouxe até aqui. Cada desafio me preparou para o próximo.
