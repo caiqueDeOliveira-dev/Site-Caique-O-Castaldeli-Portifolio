@@ -29,7 +29,12 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
     try {
       const raw = await new Promise<string>((resolve) => {
         const chunks: Buffer[] = [];
-        req.on("data", (chunk: Buffer) => chunks.push(chunk));
+        req.on("readable", () => {
+          let chunk: Buffer | null;
+          while ((chunk = req.read() as Buffer | null) !== null) {
+            chunks.push(chunk);
+          }
+        });
         req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
       });
       if (raw) body = JSON.parse(raw);
@@ -37,7 +42,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
   }
 
   if (method === "POST" && path === "/api/debug") {
-    return json(res, 200, { body, headers: req.headers, raw: "" });
+    return json(res, 200, { body });
   }
 
   if (path === "/api/health" && method === "GET") {
