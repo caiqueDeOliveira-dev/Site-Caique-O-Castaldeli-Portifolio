@@ -1,6 +1,7 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
 import express from "express";
+import jwt from "jsonwebtoken";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ log: ["error"] });
@@ -69,8 +70,7 @@ app.post("/api/auth/login", async (req, res) => {
     if (!valida) {
       return res.status(401).json({ success: false, error: "Credenciais invalidas" });
     }
-    const { sign } = await import("jsonwebtoken");
-    const token = sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
+    const token = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
     res.json({ success: true, data: { user: { id: user.id, nome: user.nome, email: user.email }, accessToken: token } });
   } catch (error) {
     res.status(500).json({ success: false, error: (error as Error).message });
@@ -81,12 +81,11 @@ app.post("/api/auth/refresh", async (req, res) => {
   try {
     const { refreshToken } = req.body || {};
     if (!refreshToken) return res.status(400).json({ success: false, error: "Refresh token nao fornecido" });
-    const { verify, sign } = await import("jsonwebtoken");
-    const decoded = verify(refreshToken, process.env.JWT_REFRESH_SECRET || "refresh-secret") as any;
+    const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET || "refresh-secret") as any;
     const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
     if (!user || !user.ativo) return res.status(401).json({ success: false, error: "Usuario nao encontrado" });
-    const newAccess = sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
-    const newRefresh = sign({ userId: user.id, email: user.email }, process.env.JWT_REFRESH_SECRET || "refresh-secret", { expiresIn: "7d" });
+    const newAccess = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
+    const newRefresh = jwt.sign({ userId: user.id, email: user.email }, process.env.JWT_REFRESH_SECRET || "refresh-secret", { expiresIn: "7d" });
     res.json({ success: true, data: { accessToken: newAccess, refreshToken: newRefresh } });
   } catch {
     res.status(401).json({ success: false, error: "Refresh token invalido" });
