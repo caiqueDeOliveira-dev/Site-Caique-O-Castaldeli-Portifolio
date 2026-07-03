@@ -37,8 +37,9 @@ export async function create(req: Request, res: Response) {
 
     return res.status(201).json({ success: true, data: message, emailSent: emailResult.success });
   } catch (error) {
-    logger.error(`Erro ao salvar mensagem: ${(error as Error).message}`);
-    return res.status(500).json({ success: false, error: "Erro interno do servidor" });
+    const err = error as Error;
+    logger.error(`Erro ao salvar mensagem: ${err.name}: ${err.message}`);
+    return res.status(500).json({ success: false, error: "Erro interno do servidor", detail: `${err.name}: ${err.message}` });
   }
 }
 
