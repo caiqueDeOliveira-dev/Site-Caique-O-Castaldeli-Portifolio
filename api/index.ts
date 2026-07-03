@@ -3,9 +3,21 @@ import bcrypt from "bcryptjs";
 import express from "express";
 import jwt from "jsonwebtoken";
 
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
+const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined; seeded: boolean };
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ log: ["error"] });
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
+
+async function seedAdmin() {
+  if (globalForPrisma.seeded) return;
+  globalForPrisma.seeded = true;
+  const count = await prisma.user.count();
+  if (count === 0) {
+    const hash = await bcrypt.hash("Admin123!", 10);
+    await prisma.user.create({ data: { nome: "Admin", email: "admin@caiquecastaldeli.dev", senha: hash, cargo: "admin" } });
+    console.log("[seed] Admin user created");
+  }
+}
+seedAdmin().catch(console.error);
 
 const app = express();
 app.use(express.text({ type: "*/*" }));
@@ -18,18 +30,6 @@ app.use((req, res, next) => {
     }
   }
   next();
-});
-
-// Debug - show raw body
-app.all("/api/debug", (req, res) => {
-  res.json({
-    method: req.method,
-    path: req.path,
-    body: req.body,
-    bodyType: typeof req.body,
-    contentType: req.headers["content-type"],
-    contentLength: req.headers["content-length"],
-  });
 });
 
 app.get("/api/health", (_req, res) => {
