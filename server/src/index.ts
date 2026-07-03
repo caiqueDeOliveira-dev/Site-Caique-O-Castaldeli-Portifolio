@@ -23,22 +23,34 @@ import { seedAdmin } from "./controllers/auth.js";
 import { seedCategories, seedTechnologies } from "./controllers/site.js";
 import { seedStats, startAutoSync, stopAutoSync } from "./controllers/stats.js";
 
+const app = express();
+
+let initialized = false;
+let initializing: Promise<void> | null = null;
+
 async function initializeDatabase() {
-  try {
-    await connectDatabase();
-    await seedAdmin();
-    await seedCategories();
-    await seedTechnologies();
-    await seedStats();
-    logger.info("Database initialized and seeds applied");
-  } catch (error) {
-    logger.error("Erro ao inicializar banco:", error);
-  }
+  if (initialized) return;
+  if (initializing) return initializing;
+  initializing = (async () => {
+    try {
+      await connectDatabase();
+      await seedAdmin();
+      await seedCategories();
+      await seedTechnologies();
+      await seedStats();
+      initialized = true;
+      logger.info("Database initialized and seeds applied");
+    } catch (error) {
+      logger.error("Erro ao inicializar banco:", error);
+    }
+  })();
+  return initializing;
 }
 
-initializeDatabase();
-
-const app = express();
+app.use((_req, _res, next) => {
+  if (initialized) return next();
+  initializeDatabase().then(() => next()).catch(() => next());
+});
 
 // Trust proxy for rate limiter behind Vercel
 app.set("trust proxy", 1);

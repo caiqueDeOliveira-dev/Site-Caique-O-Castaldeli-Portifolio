@@ -35,9 +35,8 @@ export async function login(req: AuthRequest, res: Response) {
       },
     });
   } catch (error) {
-    const errMsg = (error as Error).message;
-    logger.error(`Erro no login: ${errMsg}`);
-    return res.status(500).json({ success: false, error: "Erro interno do servidor", detail: errMsg });
+    logger.error(`Erro no login: ${(error as Error).message}`);
+    return res.status(500).json({ success: false, error: "Erro interno do servidor" });
   }
 }
 
