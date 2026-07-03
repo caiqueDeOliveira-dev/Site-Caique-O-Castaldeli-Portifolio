@@ -1,67 +1,31 @@
 import { execSync } from "child_process";
-import { existsSync, cpSync, rmSync, mkdirSync, readdirSync } from "fs";
+import { existsSync, cpSync, rmSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const isVercel = process.env.VERCEL === "1";
 
 function run(cmd, opts = {}) {
   console.log(`> ${cmd}`);
-  try {
-    execSync(cmd, { stdio: "inherit", ...opts });
-  } catch (e) {
-    console.error(`[BUILD ERROR] Comando falhou: ${cmd}`);
-    throw e;
-  }
+  execSync(cmd, { stdio: "inherit", ...opts });
 }
 
-if (isVercel) {
-  const serverDir = join(__dirname, "server");
-  const serverDist = join(serverDir, "dist");
-  const apiServerDist = join(__dirname, "api", "server-dist");
+console.log("[BUILD] Gerando Prisma Client...");
+run("npx prisma generate", { cwd: join(__dirname, "server") });
 
-  // 1. First build frontend (deps already installed by Vercel)
-  run("npx vite build", { cwd: __dirname });
+const serverModules = join(__dirname, "server", "node_modules");
+const rootModules = join(__dirname, "node_modules");
 
-  // 2. Then build server and prepare API function
-  run("npm install --include=dev --force", { cwd: serverDir });
-  run("npx prisma generate", { cwd: serverDir });
-  try {
-    execSync("npx prisma db push --accept-data-loss", { stdio: "inherit", cwd: serverDir });
-  } catch {
-    console.log("[BUILD] db push falhou (pooler nao suporta DDL). Execute manualmente com DIRECT_URL.");
-  }
-  run("npx tsc", { cwd: serverDir });
-
-  // 3. Copy compiled server to api/
-  console.log("[BUILD] Copiando build do servidor para api/...");
-  if (existsSync(apiServerDist)) rmSync(apiServerDist, { recursive: true });
-  mkdirSync(apiServerDist, { recursive: true });
-  cpSync(serverDist, apiServerDist, { recursive: true });
-
-  // 4. Copy server packages needed by the API function
-  console.log("[BUILD] Copiando dependencias do servidor...");
-  const rootModules = join(__dirname, "node_modules");
-  const serverModules = join(serverDir, "node_modules");
-  const pkgs = readdirSync(serverModules, { withFileTypes: true });
-  for (const pkg of pkgs) {
-    if (pkg.name.startsWith(".")) continue;
-    const src = join(serverModules, pkg.name);
-    const dst = join(rootModules, pkg.name);
-    if (!existsSync(dst)) {
-      cpSync(src, dst, { recursive: true });
-    }
-  }
-  // Copy .prisma generated client
-  const prismaSrc = join(serverModules, ".prisma");
-  const prismaDst = join(rootModules, ".prisma");
-  if (existsSync(prismaSrc)) {
-    if (existsSync(prismaDst)) rmSync(prismaDst, { recursive: true });
-    cpSync(prismaSrc, prismaDst, { recursive: true });
-  }
-
-  console.log("[BUILD] Build completo!");
-} else {
-  run("npx vite build", { cwd: __dirname });
+// Copy generated Prisma client to root
+const prismaSrc = join(serverModules, ".prisma");
+const prismaDst = join(rootModules, ".prisma");
+if (existsSync(prismaSrc)) {
+  if (existsSync(prismaDst)) rmSync(prismaDst, { recursive: true });
+  cpSync(prismaSrc, prismaDst, { recursive: true });
+  console.log("[BUILD] .prisma copiado para node_modules root");
 }
+
+console.log("[BUILD] Buildando frontend...");
+run("npx vite build", { cwd: __dirname });
+
+console.log("[BUILD] Build completo!");
