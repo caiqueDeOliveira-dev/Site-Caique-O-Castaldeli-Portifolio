@@ -46,6 +46,31 @@ app.get("/api/stats", async (_req, res) => {
   }
 });
 
+app.put("/api/stats", async (req, res) => {
+  try {
+    const data = req.body || {};
+    let stats = await prisma.stats.findFirst({ orderBy: { updatedAt: "desc" } });
+    if (stats) {
+      stats = await prisma.stats.update({ where: { id: stats.id }, data });
+    } else {
+      stats = await prisma.stats.create({ data });
+    }
+    res.json({ success: true, data: stats });
+  } catch (error) {
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
+app.post("/api/stats/sync", async (_req, res) => {
+  try {
+    let stats = await prisma.stats.findFirst({ orderBy: { updatedAt: "desc" } });
+    if (!stats) stats = await prisma.stats.create({ data: {} });
+    res.json({ success: true, data: stats, message: "Sincronizado" });
+  } catch (error) {
+    res.status(500).json({ success: false, error: (error as Error).message });
+  }
+});
+
 app.post("/api/messages", async (req, res) => {
   try {
     const { nome, email, assunto, mensagem } = req.body || {};
