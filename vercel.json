@@ -2,8 +2,5 @@
   "outputDirectory": "dist",
   "rewrites": [
     { "source": "/api/(.*)", "destination": "/api" }
-  ],
-  "afterFiles": [
-    { "source": "/(.*)", "destination": "/index.html" }
   ]
 }

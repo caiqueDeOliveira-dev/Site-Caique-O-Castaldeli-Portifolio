@@ -1,5 +1,5 @@
 import { execSync } from "child_process";
-import { existsSync, cpSync, rmSync } from "fs";
+import { existsSync, cpSync, rmSync, readFileSync, writeFileSync } from "fs";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
@@ -27,5 +27,13 @@ if (existsSync(prismaSrc)) {
 
 console.log("[BUILD] Buildando frontend...");
 run("npx vite build", { cwd: __dirname });
+
+// Copy index.html as 404.html for SPA fallback (Vercel serves 404.html for unmatched routes)
+const indexHtml = join(__dirname, "dist", "index.html");
+const notFoundHtml = join(__dirname, "dist", "404.html");
+if (existsSync(indexHtml)) {
+  writeFileSync(notFoundHtml, readFileSync(indexHtml));
+  console.log("[BUILD] 404.html created for SPA fallback");
+}
 
 console.log("[BUILD] Build completo!");
