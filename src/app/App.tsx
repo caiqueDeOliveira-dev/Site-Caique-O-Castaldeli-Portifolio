@@ -1,5 +1,5 @@
 import { lazy, Suspense } from "react";
-import { HashRouter, Routes, Route } from "react-router";
+import { BrowserRouter, Routes, Route } from "react-router";
 import { AIAssistant } from "./components/AIAssistant";
 import { AuthProvider } from "./contexts/AuthContext";
 
@@ -28,7 +28,7 @@ function Loading() {
 
 export default function App() {
   return (
-    <HashRouter>
+    <BrowserRouter>
       <Suspense fallback={<Loading />}>
         <Routes>
           <Route path="/" element={<Home />} />
@@ -39,6 +39,14 @@ export default function App() {
           <Route path="/contato" element={<ContactPage />} />
           <Route path="/projeto-revolucao" element={<ProjetoRevolucao />} />
           <Route path="/nego-caos" element={<NegoCaos />} />
+          <Route
+            path="/login"
+            element={
+              <AuthProvider>
+                <AdminLogin />
+              </AuthProvider>
+            }
+          />
           <Route
             path="/admin"
             element={
@@ -59,6 +67,6 @@ export default function App() {
         </Routes>
       </Suspense>
       <AIAssistant />
-    </HashRouter>
+    </BrowserRouter>
   );
 }
