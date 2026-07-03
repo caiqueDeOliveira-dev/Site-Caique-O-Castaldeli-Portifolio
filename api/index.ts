@@ -1,19 +1,11 @@
 import { PrismaClient } from "@prisma/client";
 import bcrypt from "bcryptjs";
-import { createServer, IncomingMessage, ServerResponse } from "http";
+import { IncomingMessage, ServerResponse } from "http";
 import { URL } from "url";
 
 const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
 const prisma = globalForPrisma.prisma ?? new PrismaClient({ log: ["error"] });
 if (process.env.NODE_ENV !== "production") globalForPrisma.prisma = prisma;
-
-async function readBody(req: IncomingMessage): Promise<any> {
-  const chunks: Buffer[] = [];
-  for await (const chunk of req) chunks.push(Buffer.from(chunk));
-  const raw = Buffer.concat(chunks).toString("utf-8");
-  if (!raw) return {};
-  try { return JSON.parse(raw); } catch { return {}; }
-}
 
 function json(res: ServerResponse, status: number, data: any) {
   res.writeHead(status, { "content-type": "application/json" });
@@ -25,11 +17,28 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
   const path = url.pathname;
   const method = req.method || "GET";
 
-  // CORS headers
+  // CORS
   res.setHeader("access-control-allow-origin", process.env.FRONTEND_URL || "*");
   res.setHeader("access-control-allow-methods", "GET,POST,PUT,PATCH,DELETE,OPTIONS");
   res.setHeader("access-control-allow-headers", "Content-Type,Authorization");
   if (method === "OPTIONS") { res.writeHead(204); res.end(); return; }
+
+  // Parse body for POST/PUT/PATCH
+  let body: any = {};
+  if (["POST", "PUT", "PATCH"].includes(method)) {
+    try {
+      const raw = await new Promise<string>((resolve) => {
+        const chunks: Buffer[] = [];
+        req.on("data", (chunk: Buffer) => chunks.push(chunk));
+        req.on("end", () => resolve(Buffer.concat(chunks).toString("utf-8")));
+      });
+      if (raw) body = JSON.parse(raw);
+    } catch { body = {}; }
+  }
+
+  if (method === "POST" && path === "/api/debug") {
+    return json(res, 200, { body, headers: req.headers, raw: "" });
+  }
 
   if (path === "/api/health" && method === "GET") {
     return json(res, 200, { success: true, message: "API Caique O Castaldeli rodando", environment: process.env.NODE_ENV || "production" });
@@ -47,7 +56,6 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
 
   if (path === "/api/messages" && method === "POST") {
     try {
-      const body = await readBody(req);
       const { nome, email, assunto, mensagem } = body;
       if (!nome || !email || !mensagem) {
         return json(res, 400, { success: false, error: "Campos obrigatorios: nome, email, mensagem" });
@@ -61,7 +69,6 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
 
   if (path === "/api/auth/login" && method === "POST") {
     try {
-      const body = await readBody(req);
       const { email, senha } = body;
       const user = await prisma.user.findUnique({ where: { email } });
       if (!user || !user.ativo) {
@@ -81,14 +88,12 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
 
   if (path === "/api/auth/refresh" && method === "POST") {
     try {
-      const body = await readBody(req);
       const { refreshToken } = body;
       if (!refreshToken) return json(res, 400, { success: false, error: "Refresh token nao fornecido" });
-      const { verify } = await import("jsonwebtoken");
+      const { verify, sign } = await import("jsonwebtoken");
       const decoded = verify(refreshToken, process.env.JWT_REFRESH_SECRET || "refresh-secret") as any;
       const user = await prisma.user.findUnique({ where: { id: decoded.userId } });
       if (!user || !user.ativo) return json(res, 401, { success: false, error: "Usuario nao encontrado" });
-      const { sign } = await import("jsonwebtoken");
       const newAccess = sign({ userId: user.id, email: user.email }, process.env.JWT_SECRET || "secret", { expiresIn: "15m" });
       const newRefresh = sign({ userId: user.id, email: user.email }, process.env.JWT_REFRESH_SECRET || "refresh-secret", { expiresIn: "7d" });
       return json(res, 200, { success: true, data: { accessToken: newAccess, refreshToken: newRefresh } });
