@@ -15,7 +15,6 @@ function getEnv(key: string, defaultValue?: string): string {
     return defaultValue;
   }
   console.error(`⚠️  Variavel de ambiente ${key} nao definida`);
-  if (process.env.NODE_ENV === "production") process.exit(1);
   return "";
 }
 
