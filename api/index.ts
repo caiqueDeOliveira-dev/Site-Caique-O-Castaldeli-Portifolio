@@ -100,7 +100,7 @@ async function handler(req: IncomingMessage, res: ServerResponse) {
     } catch { return json(res, 401, { success: false, error: "Refresh token invalido" }); }
   }
 
-  json(res, 404, { success: false, error: "Rota nao encontrada" });
+  json(res, 404, { success: false, error: "Rota nao encontrada", path, method });
 }
 
 export default handler;
